@@ -19,8 +19,6 @@ class Submarine:
         with open("input.txt") as fd:
             commands = [line.strip().split(" ") for line in fd.readlines()]
 
-            # print(getattr(self, 'forward')(4))
-            
             for cmd, shift in commands:
                 getattr(self, cmd)(int(shift))
 
