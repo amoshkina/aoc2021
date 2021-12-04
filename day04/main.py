@@ -77,4 +77,3 @@ if __name__ == '__main__':
 
     print('Day 4, part 1: ', solver.part1())
     print('Day 4, part 2: ', solver.part2())
-
