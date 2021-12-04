@@ -28,20 +28,20 @@ class Solver:
             data = fd.read()
             data = data.split('\n\n')
             numbers = data[0].split(',')
-            boards = set()
+            boards = []
             for idx, board in enumerate(data):
                 if idx == 0:
                     continue
 
                 rows = map(lambda x: x.split(), board.split('\n'))
-                boards.add(Board(rows))
+                boards.append(Board(rows))
 
             return numbers, boards
 
     def play(self):
         for number in self.numbers:
             for board in self.boards:
-                if number not in board.matrix:
+                if number not in board.matrix or board.won:
                     continue
 
                 coord = board.matrix[number]
@@ -50,7 +50,9 @@ class Solver:
                 board.cols[coord.y] += 1
 
                 if board.rows[coord.x] == 5 or board.cols[coord.y] == 5:
-                    return board, int(number)
+                    board.won = True
+                    yield board, int(number)
+
 
     @staticmethod
     def score(board, number):
@@ -62,7 +64,7 @@ class Solver:
         return umarked_sum * number
 
     def part1(self):
-        return self.score(*self.play())
+        return self.score(*next(self.play()))
 
 
 if __name__ == '__main__':
