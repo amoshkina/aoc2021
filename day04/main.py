@@ -58,12 +58,12 @@ class Solver:
 
     @staticmethod
     def score(board, number):
-        umarked_sum = 0
+        unmarked_sum = 0
         for value, coord in board.matrix.items():
             if not coord.marked:
-                umarked_sum += int(value)
+                unmarked_sum += int(value)
 
-        return umarked_sum * number
+        return unmarked_sum * number
 
     def part1(self):
         return self.score(*next(self.play))
