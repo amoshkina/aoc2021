@@ -69,11 +69,7 @@ class Solver:
         return self.score(*next(self.play))
 
     def part2(self):
-        board, number = None, None
-        while len(self.boards) > 1:
-            board, number = next(self.play)
-
-        return self.score(board, number)
+        return self.score(*list(self.play)[-1])
 
 
 if __name__ == '__main__':
