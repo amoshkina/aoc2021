@@ -21,6 +21,7 @@ class Board:
 class Solver:
     def __init__(self):
         self.numbers, self.boards = self.read_input()
+        self.play = self._play()
 
     @staticmethod
     def read_input():
@@ -38,7 +39,7 @@ class Solver:
 
             return numbers, boards
 
-    def play(self):
+    def _play(self):
         for number in self.numbers:
             for board in self.boards:
                 if number not in board.matrix or board.won:
@@ -53,6 +54,7 @@ class Solver:
                     board.won = True
                     yield board, int(number)
 
+            self.boards = list(filter(lambda item: not item.won, self.boards))
 
     @staticmethod
     def score(board, number):
@@ -64,11 +66,19 @@ class Solver:
         return umarked_sum * number
 
     def part1(self):
-        return self.score(*next(self.play()))
+        return self.score(*next(self.play))
+
+    def part2(self):
+        board, number = None, None
+        while len(self.boards) > 1:
+            board, number = next(self.play)
+
+        return self.score(board, number)
 
 
 if __name__ == '__main__':
     solver = Solver()
 
     print('Day 4, part 1: ', solver.part1())
+    print('Day 4, part 2: ', solver.part2())
 
