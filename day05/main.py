@@ -44,18 +44,14 @@ class Solver:
 
     def part1(self):
         for segment in self.segments:
-            if segment.x1 == segment.x2:
-                x = segment.x1
-                start, end = min(segment.y1, segment.y2), max(segment.y1, segment.y2)
+            if segment.horizontal or segment.vertical:
+                dir_x = 1 if segment.x1 <= segment.x2 else -1
+                dir_y = 1 if segment.y1 <= segment.y2 else - 1
 
-                for y in range(start, end+1):
-                    self.matrix[x][y] += 1
-            elif segment.y1 == segment.y2:
-                y = segment.y1
-                start, end = min(segment.x1, segment.x2), max(segment.x1, segment.x2)
+                for x in range(segment.x1, segment.x2 + dir_x, dir_x):
+                    for y in range(segment.y1, segment.y2 + dir_y, dir_y):
 
-                for x in range(start, end+1):
-                    self.matrix[x][y] += 1
+                        self.matrix[x][y] += 1
 
         counter = 0
         for line in self.matrix:
