@@ -1,9 +1,22 @@
 class Segment:
-    def __init__(self, start, end):
-        self.x1 = start[0]
-        self.y1 = start[1]
-        self.x2 = end[0]
-        self.y2 = end[1]
+    def __init__(self, p1, p2):
+        self.x1 = p1[0]
+        self.y1 = p1[1]
+        self.x2 = p2[0]
+        self.y2 = p2[1]
+
+        self.dir_x = self.get_dir(self.x1, self.x2)
+        self.dir_y = self.get_dir(self.y1, self.y2)
+
+    @staticmethod
+    def get_dir(c1, c2):
+        if c1 == c2:
+            return 0
+
+        if c1 < c2:
+            return 1
+
+        return -1
 
     @property
     def horizontal(self):
@@ -50,46 +63,30 @@ class Solver:
                     counter += 1
         return counter
 
+    def draw_segment(self, segment):
+        x = segment.x1 + segment.dir_x * -1
+        y = segment.y1 + segment.dir_y * -1
+        while x != segment.x2 or y != segment.y2:
+            x += segment.dir_x
+            y += segment.dir_y
+            self.matrix[x][y] += 1
+
+        assert x == segment.x2 and y == segment.y2
+
     def part1(self):
         for segment in self.segments:
             if segment.horizontal or segment.vertical:
-                dir_x = 1 if segment.x1 <= segment.x2 else -1
-                dir_y = 1 if segment.y1 <= segment.y2 else - 1
-
-                for x in range(segment.x1, segment.x2 + dir_x, dir_x):
-                    for y in range(segment.y1, segment.y2 + dir_y, dir_y):
-
-                        self.matrix[x][y] += 1
+                self.draw_segment(segment)
 
         return self.score()
 
-    @staticmethod
-    def get_dir(c1, c2):
-        if c1 == c2:
-            return 0
-
-        if c1 < c2:
-            return 1
-
-        return -1
-
     def part2(self):
         for segment in self.segments:
-            dir_x = self.get_dir(segment.x1, segment.x2)
-            dir_y = self.get_dir(segment.y1, segment.y2)
-
-            x = segment.x1 + dir_x * -1
-            y = segment.y1 + dir_y * -1
-            while x != segment.x2 or y != segment.y2:
-                x += dir_x
-                y += dir_y
-                self.matrix[x][y] += 1
-
-            assert x == segment.x2 and y == segment.y2
+            self.draw_segment(segment)
 
         return self.score()
 
 
 if __name__ == '__main__':
-    # print('Day 5, part 1: ', Solver().part1())
+    print('Day 5, part 1: ', Solver().part1())
     print('Day 5, part 2: ', Solver().part2())
