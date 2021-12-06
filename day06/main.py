@@ -1,11 +1,13 @@
 from collections import defaultdict
 
+
 class Solver:
 
     def __init__(self):
         self.fish_map = self.read_input()
 
-    def read_input(self):
+    @staticmethod
+    def read_input():
         with open('input.txt') as fd:
             fish_list = list(map(int, fd.read().strip().split(',')))
 
