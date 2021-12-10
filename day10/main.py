@@ -11,11 +11,18 @@ class Solver:
         '}': '{'
     }
 
-    SCORER = {
+    ILLEGAL_SCORES = {
         ')': 3,
         ']': 57,
         '}': 1197,
         '>': 25137
+    }
+
+    INCOMPLETE_SCORES = {
+        '(': 1,
+        '[': 2,
+        '{': 3,
+        '<': 4,
     }
 
     def __init__(self):
@@ -30,10 +37,10 @@ class Solver:
 
         return nav_matrix
 
-    def score(self, illegal):
+    def score_illegal(self, illegal):
         result = 0
         for item, count in illegal.items():
-            result += self.SCORER[item] * count
+            result += self.ILLEGAL_SCORES[item] * count
 
         return result
 
@@ -49,8 +56,31 @@ class Solver:
                     if last != self.PAIR[item]:
                         illegal[item] += 1
 
-        return self.score(illegal)
+        return self.score_illegal(illegal)
+
+    def part2(self):
+        scores = []
+        for line in self.nav_matrix:
+            stack = []
+            illegal = False
+            for item in line:
+                if item in self.OPEN:
+                    stack.append(item)
+                else:
+                    last = stack.pop()
+                    if last != self.PAIR[item]:
+                        illegal = True
+                        break
+            local_score = 0
+            if not illegal and len(stack) > 0:
+                for item in reversed(stack):
+                    local_score *= 5
+                    local_score += self.INCOMPLETE_SCORES[item]
+                scores.append(local_score)
+
+        return sorted(scores)[int(len(scores) / 2)]
 
 
 if __name__ == '__main__':
     print('Day 10, part 1: ', Solver().part1())
+    print('Day 10, part 2: ', Solver().part2())
