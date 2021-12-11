@@ -48,9 +48,9 @@ class Solver:
                         if neighbour.energy > 9 and not neighbour.flashed:
                             to_flash.append(neighbour)
 
-    def part1(self):
+    def simulate(self, part, steps):
         counter = 0
-        for step in range(100):
+        for step in range(steps):
             to_flash = deque()
             # 1. increment all octopuses' energy by one
             for row in self.matrix:
@@ -63,15 +63,28 @@ class Solver:
             self.flash(to_flash)
 
             # 3. reset flashed octopuses
+            local_counter = 0
             for row in self.matrix:
                 for octopus in row:
                     if octopus.flashed:
-                        counter += 1
+                        local_counter += 1
                         octopus.flashed = False
                         octopus.energy = 0
 
+            if part == 2 and local_counter == 100:
+                return step + 1
+
+            counter += local_counter
+
         return counter
+
+    def part1(self):
+        return self.simulate(1, 100)
+
+    def part2(self):
+        return self.simulate(2, 1000)
 
 
 if __name__ == '__main__':
     print('Day 11, part 1: ', Solver().part1())
+    print('Day 11, part 2: ', Solver().part2())
