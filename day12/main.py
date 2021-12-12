@@ -52,28 +52,23 @@ class Solver:
         if not paths:
             return
 
-        cave, caves, edges = paths.pop()
+        cave, caves = paths.pop()
         if cave.is_end:
             self.path_counter += 1
             return
 
         for next_cave in cave.connections:
-            new_edge = (cave, next_cave)
-
-            if (next_cave.name in caves and not next_cave.is_reentrable) or new_edge in edges:
+            if next_cave.name in caves and not next_cave.is_reentrable:
                 continue
 
             new_caves = copy(caves)
             new_caves.add(next_cave.name)
 
-            new_edges = copy(edges)
-            new_edges.add(new_edge)
-
-            paths.append((next_cave, new_caves, new_edges))
+            paths.append((next_cave, new_caves))
 
     def part1(self):
         start = self.caves['start']
-        paths = [(start, {start.name}, set())]
+        paths = [(start, {start.name})]
         while paths:
             self.bfs_part1(paths)
         return self.path_counter
