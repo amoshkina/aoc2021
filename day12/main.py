@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import copy
 
 
@@ -47,7 +48,7 @@ class Solver:
                 cave1.connections.add(cave2)
                 cave2.connections.add(cave1)
 
-    def bfs(self, paths):
+    def bfs_part1(self, paths):
         if not paths:
             return
 
@@ -74,7 +75,7 @@ class Solver:
         start = self.caves['start']
         paths = [(start, {start.name}, set())]
         while paths:
-            self.bfs(paths)
+            self.bfs_part1(paths)
         return self.path_counter
 
 
