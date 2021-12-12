@@ -58,17 +58,21 @@ class Solver:
             return
 
         for next_cave in cave.connections:
-            if next_cave.name in caves and not next_cave.is_reentrable:
-                continue
+            cond = (
+                next_cave.name not in caves or
+                next_cave.is_reentrable
+            )
 
-            new_caves = copy(caves)
-            new_caves.add(next_cave.name)
-
-            paths.append((next_cave, new_caves))
+            if cond:
+                new_caves = copy(caves)
+                new_caves[next_cave.name] += 1
+                paths.append((next_cave, new_caves))
 
     def part1(self):
         start = self.caves['start']
-        paths = [(start, {start.name})]
+        caves = defaultdict(int)
+        caves[start.name] += 1
+        paths = [(start, caves)]
         while paths:
             self.bfs_part1(paths)
         return self.path_counter
@@ -83,18 +87,17 @@ class Solver:
             return
 
         for next_cave in cave.connections:
-            twice_visited = [name for name, visits in caves.items() if visits == 2 and name.lower() == name]
+            visited = [name for name, visits in caves.items() if visits == 2 and name.lower() == name]
 
             cond = (
                 next_cave.name not in caves or
                 next_cave.is_reentrable or
-                (not twice_visited and not next_cave.is_start and not next_cave.is_end)
+                (not visited and not next_cave.is_start and not next_cave.is_end)
             )
 
             if cond:
                 new_caves = copy(caves)
                 new_caves[next_cave.name] += 1
-
                 paths.append((next_cave, new_caves))
 
     def part2(self):
