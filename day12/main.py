@@ -58,7 +58,10 @@ class Solver:
             return
 
         for next_cave in cave.connections:
-            visited = [name for name, visits in caves.items() if visits == reentrance and name.lower() == name]
+            visited = [
+                name for name, visits in caves.items()
+                if visits == reentrance and name.lower() == name
+            ]
 
             cond = (
                 next_cave.name not in caves or
