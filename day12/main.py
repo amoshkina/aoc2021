@@ -85,10 +85,13 @@ class Solver:
         for next_cave in cave.connections:
             twice_visited = [name for name, visits in caves.items() if visits == 2 and name.lower() == name]
 
-            if next_cave.name in caves and (next_cave.is_start or next_cave.is_end):
-                continue
+            cond = (
+                next_cave.name not in caves or
+                next_cave.is_reentrable or
+                (not twice_visited and not next_cave.is_start and not next_cave.is_end)
+            )
 
-            if next_cave.name not in caves or next_cave.is_reentrable or not twice_visited:
+            if cond:
                 new_caves = copy(caves)
                 new_caves[next_cave.name] += 1
 
