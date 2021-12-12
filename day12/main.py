@@ -48,7 +48,7 @@ class Solver:
                 cave1.connections.add(cave2)
                 cave2.connections.add(cave1)
 
-    def bfs_part1(self, paths):
+    def bfs(self, paths, reentrance):
         if not paths:
             return
 
@@ -58,36 +58,7 @@ class Solver:
             return
 
         for next_cave in cave.connections:
-            cond = (
-                next_cave.name not in caves or
-                next_cave.is_reentrable
-            )
-
-            if cond:
-                new_caves = copy(caves)
-                new_caves[next_cave.name] += 1
-                paths.append((next_cave, new_caves))
-
-    def part1(self):
-        start = self.caves['start']
-        caves = defaultdict(int)
-        caves[start.name] += 1
-        paths = [(start, caves)]
-        while paths:
-            self.bfs_part1(paths)
-        return self.path_counter
-
-    def bfs_part2(self, paths):
-        if not paths:
-            return
-
-        cave, caves = paths.pop()
-        if cave.is_end:
-            self.path_counter += 1
-            return
-
-        for next_cave in cave.connections:
-            visited = [name for name, visits in caves.items() if visits == 2 and name.lower() == name]
+            visited = [name for name, visits in caves.items() if visits == reentrance and name.lower() == name]
 
             cond = (
                 next_cave.name not in caves or
@@ -100,14 +71,20 @@ class Solver:
                 new_caves[next_cave.name] += 1
                 paths.append((next_cave, new_caves))
 
-    def part2(self):
+    def bfs_init(self, reentrance):
         start = self.caves['start']
         caves = defaultdict(int)
         caves[start.name] += 1
         paths = [(start, caves)]
         while paths:
-            self.bfs_part2(paths)
+            self.bfs(paths, reentrance)
         return self.path_counter
+
+    def part1(self):
+        return self.bfs_init(1)
+
+    def part2(self):
+        return self.bfs_init(2)
 
 
 if __name__ == '__main__':
