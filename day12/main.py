@@ -78,6 +78,37 @@ class Solver:
             self.bfs_part1(paths)
         return self.path_counter
 
+    def bfs_part2(self, paths):
+        if not paths:
+            return
+
+        cave, caves = paths.pop()
+        if cave.is_end:
+            self.path_counter += 1
+            return
+
+        for next_cave in cave.connections:
+            twice_visited = [name for name, visits in caves.items() if visits == 2 and name.lower() == name]
+
+            if next_cave.name in caves and (next_cave.is_start or next_cave.is_end):
+                continue
+
+            if next_cave.name not in caves or next_cave.is_reentrable or not twice_visited:
+                new_caves = copy(caves)
+                new_caves[next_cave.name] += 1
+
+                paths.append((next_cave, new_caves))
+
+    def part2(self):
+        start = self.caves['start']
+        caves = defaultdict(int)
+        caves[start.name] += 1
+        paths = [(start, caves)]
+        while paths:
+            self.bfs_part2(paths)
+        return self.path_counter
+
 
 if __name__ == '__main__':
     print('Day 12, part 1: ', Solver().part1())
+    print('Day 12, part 2: ', Solver().part2())
