@@ -20,7 +20,9 @@ class Solver:
         self.matrix, self.folders = self.read_input()
 
     def print_matrix(self):
-        for line in self.matrix:
+        for i, line in enumerate(self.matrix):
+            if i >= 6:
+                break
             print(''.join(line))
 
     @staticmethod
@@ -41,7 +43,7 @@ class Solver:
                     max_x = max(max_x, x)
                     max_y = max(max_y, y)
 
-        matrix = [['.' for _ in range(max_y+1)] for _ in range(max_x + 1)]
+        matrix = [[' ' for _ in range(max_y+1)] for _ in range(max_x + 1)]
         for (i, j) in dots:
             matrix[i][j] = '#'
 
@@ -54,17 +56,26 @@ class Solver:
 
         return counter
 
-    def part1(self):
-        folder = self.folders[0]
+    def fold(self, folder):
         for i, line in enumerate(self.matrix):
             for j, value in enumerate(line):
                 if (0 < folder.x < i or 0 < folder.y < j) and self.matrix[i][j] == '#':
-                    self.matrix[i][j] = '.'
+                    self.matrix[i][j] = ' '
                     i1, j1 = folder.fold(i, j)
                     self.matrix[i1][j1] = '#'
 
+    def part1(self):
+        self.fold(self.folders[0])
+        return self.score()
+
+    def part2(self):
+        for folder in self.folders:
+            self.fold(folder)
+
+        self.print_matrix()
         return self.score()
 
 
 if __name__ == '__main__':
     print('Day 13, part 1: ', Solver().part1())
+    print('Day 13, part 2: ', Solver().part2())
