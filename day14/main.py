@@ -62,9 +62,8 @@ class Solver:
         values = set(frequency.values())
         return max(values) - min(values)
 
-    def part1(self):
-
-        for _ in range(10):
+    def run(self, steps):
+        for _ in range(steps):
             current = self.polymer
             while current.next:
                 nxt = current.next
@@ -76,6 +75,8 @@ class Solver:
 
                 current = nxt
 
+    def part1(self):
+        self.run(10)
         return self.score()
 
 
