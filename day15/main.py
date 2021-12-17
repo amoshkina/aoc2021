@@ -1,4 +1,5 @@
 import heapq
+from copy import copy
 
 
 class Cost:
@@ -14,7 +15,7 @@ class Cost:
     return self.value > other.value
 
 
-class Solver:
+class Solver1(object):
   def __init__(self):
     self.matrix = self.read_input()
     self.x_max = len(self.matrix)
@@ -22,8 +23,7 @@ class Solver:
     self.cost_matrix = [[float('inf')] * self.y_max for _ in range(self.x_max)]
     self.cost_matrix[0][0] = 0
 
-  @staticmethod
-  def read_input():
+  def read_input(self):
     matrix = []
     with open('input.txt') as fd:
       for i, line in enumerate(fd.readlines()):
@@ -31,7 +31,7 @@ class Solver:
 
     return matrix
 
-  def part1(self):
+  def solve(self):
     self.cost_matrix[0][0] = 0
     self.cost_matrix[0][1] = self.matrix[0][1]
     self.cost_matrix[1][0] = self.matrix[1][0]
@@ -67,5 +67,34 @@ class Solver:
     return self.cost_matrix[self.x_max-1][self.y_max-1]
 
 
+class Solver2(Solver1):
+  def read_input(self):
+    matrix = super(Solver2, self).read_input()
+    new_matrix = []
+
+    x_max = len(matrix)
+    for row in matrix:
+      new_row = copy(row)
+      for step in range(1, 5):
+        for value in row:
+          new_row.append(sum(divmod(value + step, 10)))
+
+      new_matrix.append(new_row)
+
+    for step in range(1, 5):
+      for i, row in enumerate(new_matrix):
+        if i >= x_max:
+          break
+
+        new_row = []
+        for value in row:
+          new_row.append(sum(divmod(value + step, 10)))
+
+        new_matrix.append(new_row)
+
+    return new_matrix
+
+
 if __name__ == '__main__':
-  print('Day 15, part 1: %s' % Solver().part1())
+  print('Day 15, part 1: %s' % Solver1().solve())
+  print('Day 15, part 2: %s' % Solver2().solve())
