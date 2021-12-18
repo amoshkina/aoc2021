@@ -1,6 +1,3 @@
-from collections import deque
-
-
 class Solver(object):
   HEX_MAP = {
     '0': '0000',
@@ -21,20 +18,20 @@ class Solver(object):
     'F': '1111'
   }
 
-  OP_TYPE = {
-    0: 'sum',
-    1: 'mul',
-    2: 'min',
-    3: 'max',
-    5: 'gt',
-    6: 'lt',
-    7: 'eq'
-  }
-
   def __init__(self):
     self.message = self.read_input()
-    self.expr = deque()
+    self.expr = []
     self.versions = []
+
+    self.OP_TYPE = {
+      0: self.sum,
+      1: self.mul,
+      2: self.min,
+      3: self.max,
+      5: self.gt,
+      6: self.lt,
+      7: self.eq
+    }
 
   def read_input(self):
     with open('input.txt') as fd:
@@ -71,6 +68,7 @@ class Solver(object):
       literal_len = self.parse_literal(message[start+6:])
       start += 6 + literal_len
     else:
+      self.expr.append('(')
       self.expr.append(self.OP_TYPE[int(p_type, 2)])
       len_type_idx = start + 6
       if message[len_type_idx] == '0':
@@ -85,6 +83,7 @@ class Solver(object):
           start_add = self.parse_next_packet(message[start:])
           start += start_add
 
+      self.expr.append(')')
     return start
 
   def parse_message(self, message):
@@ -93,14 +92,49 @@ class Solver(object):
       start_add = self.parse_next_packet(message[start:])
       start += start_add
 
+  def sum(self, *args):
+    return sum(args)
+
+  def mul(self, *args):
+    return reduce(lambda x, y: x*y, args)
+
+  def min(self, *args):
+    return min(args)
+
+  def max(self, *args):
+    return max(args)
+
+  def gt(self, x, y):
+    return 1 if x > y else 0
+
+  def lt(self, x, y):
+    return 1 if x < y else 0
+
+  def eq(self, x, y):
+    return 1 if x == y else 0
+
+  def eval(self, expr):
+    args = []
+    while len(expr) > 1:
+      item = expr.pop()
+      if isinstance(item, int):
+        args.append(item)
+      else:
+        expr.append(item(*args))
+        args = []
+
+    return expr.pop()
+
   def part1(self):
     self.parse_message(self.message)
     return sum(self.versions)
 
   def part2(self):
     self.parse_message(self.message)
-    return self.expr
+    # print(self.expr)
+    return self.eval(self.expr)
 
 
 if __name__ == '__main__':
-  print('Day 16, part 1: %s' % Solver().part1())
+  # print('Day 16, part 1: %s' % Solver().part1())
+  print('Day 16, part 2: %s' % Solver().part2())
