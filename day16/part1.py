@@ -20,7 +20,6 @@ class Solver(object):
 
   def __init__(self):
     self.message = self.read_input()
-    print(self.message)
 
   def read_input(self):
     with open('input.txt') as fd:
@@ -29,9 +28,6 @@ class Solver(object):
         result.append(self.HEX_MAP[hex_value])
 
     return ''.join(result)
-      # result = bin(int(fd.read().strip(), 16))[2:]
-      # padding = len(result) % 4
-      # return '0' * padding + result
 
   def parse_literal(self, literal):
     start = 0
@@ -40,17 +36,6 @@ class Solver(object):
 
     start += 5
     return start
-
-  # def parse_one_packet(self, message):
-  #   start = 0
-  #   versions = []
-  #   if '1' not in message[start:]:
-  #     # this is the remainder of the message containing only 0s
-  #     return start, versions
-  #
-  #
-  #
-  #   return start, versions
 
   def parse_next_packet(self, message):
     start = 0
@@ -71,7 +56,7 @@ class Solver(object):
         operands_len = int(message[len_type_idx + 1:len_type_idx + 16], 2)
         versions_add = self.parse_message(message[len_type_idx + 16:len_type_idx + 16 + operands_len])
         versions.extend(versions_add)
-        start += len_type_idx + 16 + operands_len #+ 1
+        start += len_type_idx + 16 + operands_len
       else:  # self.message[len_type_idx] == 1
         packets_num = int(message[len_type_idx + 1:len_type_idx+12], 2)
         start = len_type_idx+12
