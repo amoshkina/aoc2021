@@ -20,7 +20,6 @@ class Solver(object):
 
   def __init__(self):
     self.message = self.read_input()
-    self.expr = []
     self.versions = []
 
     self.OP_TYPE = {
@@ -49,92 +48,112 @@ class Solver(object):
       start += 5
 
     number.append(literal[start+1:start+5])
-    self.expr.append(int(''.join(number), 2))
 
     start += 5
-    return start
+    return start, int(''.join(number), 2)
 
   def parse_next_packet(self, message):
     start = 0
-    # versions = []
+    expr = []
     if '1' not in message:
       # this is the remainder of the message containing only 0s
-      return len(message)
+      return len(message), expr
 
     p_version, p_type = message[start:start + 3], message[start + 3:start + 6]
     self.versions.append(int(p_version, 2))
 
     if p_type == '100':
-      literal_len = self.parse_literal(message[start+6:])
+      literal_len, value = self.parse_literal(message[start+6:])
+      expr.append(value)
       start += 6 + literal_len
     else:
-      self.expr.append('(')
-      self.expr.append(self.OP_TYPE[int(p_type, 2)])
+      expr.append(self.OP_TYPE[int(p_type, 2)])
       len_type_idx = start + 6
       if message[len_type_idx] == '0':
         operands_len = int(message[len_type_idx + 1:len_type_idx + 16], 2)
-        self.parse_message(message[len_type_idx + 16:len_type_idx + 16 + operands_len])
+        expr.extend(self.parse_message(message[len_type_idx + 16:len_type_idx + 16 + operands_len]))
         start += len_type_idx + 16 + operands_len
       else:  # self.message[len_type_idx] == 1
         packets_num = int(message[len_type_idx + 1:len_type_idx+12], 2)
         start = len_type_idx+12
 
         for _ in range(packets_num):
-          start_add = self.parse_next_packet(message[start:])
+          start_add, sub_expr = self.parse_next_packet(message[start:])
           start += start_add
+          if sub_expr:
+            expr.append(sub_expr)
 
-      self.expr.append(')')
-    return start
+    return start, expr
 
   def parse_message(self, message):
     start = 0
+    expr = []
     while start < len(message):
-      start_add = self.parse_next_packet(message[start:])
+      start_add, sub_expr = self.parse_next_packet(message[start:])
+      if sub_expr:
+        expr.append(sub_expr)
       start += start_add
 
-  def sum(self, *args):
+    return expr
+
+  @staticmethod
+  def sum(args):
+    assert len(args) > 0
     return sum(args)
 
-  def mul(self, *args):
+  @staticmethod
+  def mul(args):
+    assert len(args) > 0
     return reduce(lambda x, y: x*y, args)
 
-  def min(self, *args):
+  @staticmethod
+  def min(args):
+    assert len(args) > 0
     return min(args)
 
-  def max(self, *args):
+  @staticmethod
+  def max(args):
+    assert len(args) > 0
     return max(args)
 
-  def gt(self, x, y):
-    return 1 if x > y else 0
+  @staticmethod
+  def gt(args):
+    assert len(args) == 2
+    return 1 if args[0] > args[1] else 0
 
-  def lt(self, x, y):
-    return 1 if x < y else 0
+  @staticmethod
+  def lt(args):
+    assert len(args) == 2
+    return 1 if args[0] < args[1] else 0
 
-  def eq(self, x, y):
-    return 1 if x == y else 0
+  @staticmethod
+  def eq(args):
+    assert len(args) == 2
+    return 1 if args[0] == args[1] else 0
 
-  def eval(self, expr):
-    args = []
-    while len(expr) > 1:
-      item = expr.pop()
-      if isinstance(item, int):
-        args.append(item)
-      else:
-        expr.append(item(*args))
-        args = []
+  @staticmethod
+  def eval(expr):
+    if isinstance(expr, int):
+      return expr
 
-    return expr.pop()
+    assert isinstance(expr, list)
+
+    if len(expr) == 1:
+      return Solver.eval(expr.pop())
+
+    func, args = expr[0], map(Solver.eval, expr[1:])
+
+    return func(args)
 
   def part1(self):
     self.parse_message(self.message)
     return sum(self.versions)
 
   def part2(self):
-    self.parse_message(self.message)
-    # print(self.expr)
-    return self.eval(self.expr)
+    expr = self.parse_message(self.message)
+    return self.eval(expr)
 
 
 if __name__ == '__main__':
-  # print('Day 16, part 1: %s' % Solver().part1())
+  print('Day 16, part 1: %s' % Solver().part1())
   print('Day 16, part 2: %s' % Solver().part2())
