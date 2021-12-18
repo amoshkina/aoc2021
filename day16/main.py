@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Solver(object):
   HEX_MAP = {
     '0': '0000',
@@ -18,8 +21,20 @@ class Solver(object):
     'F': '1111'
   }
 
+  OP_TYPE = {
+    0: 'sum',
+    1: 'mul',
+    2: 'min',
+    3: 'max',
+    5: 'gt',
+    6: 'lt',
+    7: 'eq'
+  }
+
   def __init__(self):
     self.message = self.read_input()
+    self.expr = deque()
+    self.versions = []
 
   def read_input(self):
     with open('input.txt') as fd:
@@ -31,56 +46,61 @@ class Solver(object):
 
   def parse_literal(self, literal):
     start = 0
+    number = []
     while literal[start] == '1':
+      number.append(literal[start+1:start+5])
       start += 5
+
+    number.append(literal[start+1:start+5])
+    self.expr.append(int(''.join(number), 2))
 
     start += 5
     return start
 
   def parse_next_packet(self, message):
     start = 0
-    versions = []
+    # versions = []
     if '1' not in message:
       # this is the remainder of the message containing only 0s
-      return len(message), versions
+      return len(message)
 
     p_version, p_type = message[start:start + 3], message[start + 3:start + 6]
-    versions.append(int(p_version, 2))
+    self.versions.append(int(p_version, 2))
 
     if p_type == '100':
       literal_len = self.parse_literal(message[start+6:])
       start += 6 + literal_len
     else:
+      self.expr.append(self.OP_TYPE[int(p_type, 2)])
       len_type_idx = start + 6
       if message[len_type_idx] == '0':
         operands_len = int(message[len_type_idx + 1:len_type_idx + 16], 2)
-        versions_add = self.parse_message(message[len_type_idx + 16:len_type_idx + 16 + operands_len])
-        versions.extend(versions_add)
+        self.parse_message(message[len_type_idx + 16:len_type_idx + 16 + operands_len])
         start += len_type_idx + 16 + operands_len
       else:  # self.message[len_type_idx] == 1
         packets_num = int(message[len_type_idx + 1:len_type_idx+12], 2)
         start = len_type_idx+12
 
         for _ in range(packets_num):
-          start_add, versions_add = self.parse_next_packet(message[start:])
+          start_add = self.parse_next_packet(message[start:])
           start += start_add
-          versions.extend(versions_add)
 
-    return start, versions
+    return start
 
   def parse_message(self, message):
     start = 0
-    versions = []
     while start < len(message):
-      start_add, versions_add = self.parse_next_packet(message[start:])
+      start_add = self.parse_next_packet(message[start:])
       start += start_add
-      versions.extend(versions_add)
 
-    return versions
+  def part1(self):
+    self.parse_message(self.message)
+    return sum(self.versions)
 
   def part2(self):
-    return sum(self.parse_message(self.message))
+    self.parse_message(self.message)
+    return self.expr
 
 
 if __name__ == '__main__':
-  print('Day 16, part 2: %s' % Solver().part2())
+  print('Day 16, part 1: %s' % Solver().part1())
